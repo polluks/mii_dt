@@ -1,0 +1,18 @@
+mii.datatype: StartUp.o LibInit.o libfuncs.o
+
+             SLINK WITH smakefile.wth
+             Copy Mii devs:datatypes
+             Copy Mii_DB devs:datatypes
+             Copy mii.datatype SYS:Classes/Datatypes
+
+StartUp.o: StartUp.c
+
+             SC StartUp.c
+
+LibInit.o: LibInit.c
+
+             SC LibInit.c
+
+libfuncs.o: libfuncs.c
+
+             SC libfuncs.c
