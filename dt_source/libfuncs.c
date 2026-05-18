@@ -249,20 +249,31 @@ static int in_ellipse(int x, int y, int cx, int cy, int rx, int ry)
 
 static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData *m)
 {
- UWORD cx = width / 2;
- UWORD cy = height / 2;
- int shape = mii_faceShape(m);
- int skin  = mii_skinColor(m);
- int rx = 14;
- int ry = 20;
-
- UBYTE skin_col = 2;
- UBYTE outline_col = 1;
- UBYTE eye_col = 3;
- UBYTE hair_col = 4;
- UBYTE lip_col = 5;
-
+ UWORD cx, cy;
+ int shape, skin, rx, ry;
+ UBYTE skin_col, outline_col, eye_col, hair_col, lip_col;
  int x, y;
+ int eye_type, eye_vert, eye_y, eye_w, eye_h;
+ int left_eye_x, right_eye_x, pupil_off;
+ int nose_type, nose_y, nose_w;
+ int lip_type, lip_y, lip_w;
+ int hair_type, hair_y, in_hair, skip;
+ int brow_type, brow_y, brow_w;
+ int glasses;
+ int mx, my;
+
+ cx = width / 2;
+ cy = height / 2;
+ shape = mii_faceShape(m);
+ skin  = mii_skinColor(m);
+ rx = 14;
+ ry = 20;
+
+ skin_col = 2;
+ outline_col = 1;
+ eye_col = 3;
+ hair_col = 4;
+ lip_col = 5;
 
  switch(skin)
  {
@@ -278,7 +289,8 @@ static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData
   {
    if(in_ellipse(x, y, cx, cy - 2, rx, ry))
    {
-    UBYTE c = skin_col;
+    UBYTE c;
+    c = skin_col;
     if((x == cx - rx || x == cx + rx || y == cy - 2 - ry || y == cy - 2 + ry))
     {
      if(in_ellipse(x, y, cx, cy - 2, rx, ry))
@@ -301,15 +313,15 @@ static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData
    draw_pixel(bm, width, x, cy - 2 + ry, outline_col);
  }
 
- int eye_type = mii_eyeType(m);
- int eye_vert = mii_eyeVertPos(m);
- int eye_y = cy - 4 + (eye_vert - 12) / 3;
+ eye_type = mii_eyeType(m);
+ eye_vert = mii_eyeVertPos(m);
+ eye_y = cy - 4 + (eye_vert - 12) / 3;
 
- int eye_w = 3 + (eye_type % 4);
- int eye_h = 2 + ((eye_type / 8) % 2);
+ eye_w = 3 + (eye_type % 4);
+ eye_h = 2 + ((eye_type / 8) % 2);
 
- int left_eye_x = cx - 5;
- int right_eye_x = cx + 5 - eye_w;
+ left_eye_x = cx - 5;
+ right_eye_x = cx + 5 - eye_w;
 
  for(y = eye_y; y < eye_y + eye_h; y++)
   for(x = left_eye_x; x < left_eye_x + eye_w; x++)
@@ -318,41 +330,41 @@ static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData
   for(x = right_eye_x; x < right_eye_x + eye_w; x++)
    draw_pixel(bm, width, x, y, 10);
 
- int pupil_off = eye_w / 2;
+ pupil_off = eye_w / 2;
  draw_pixel(bm, width, left_eye_x + pupil_off, eye_y + eye_h / 2, 11);
  draw_pixel(bm, width, right_eye_x + pupil_off, eye_y + eye_h / 2, 11);
 
- int nose_type = mii_noseType(m);
- int nose_y = cy + 2 + (mii_noseVertPos(m) - 9) / 3;
- int nose_w = 2 + (nose_type % 3);
+ nose_type = mii_noseType(m);
+ nose_y = cy + 2 + (mii_noseVertPos(m) - 9) / 3;
+ nose_w = 2 + (nose_type % 3);
 
  for(x = cx - nose_w; x <= cx + nose_w; x++)
   draw_pixel(bm, width, x, nose_y, outline_col);
  draw_pixel(bm, width, cx, nose_y + 1, outline_col);
 
- int lip_type = mii_lipType(m);
- int lip_y = cy + 8;
- int lip_w = 4 + (lip_type % 4);
+ lip_type = mii_lipType(m);
+ lip_y = cy + 8;
+ lip_w = 4 + (lip_type % 4);
 
  for(x = cx - lip_w; x <= cx + lip_w; x++)
   draw_pixel(bm, width, x, lip_y, lip_col);
  draw_pixel(bm, width, cx - lip_w, lip_y - 1, lip_col);
  draw_pixel(bm, width, cx + lip_w, lip_y - 1, lip_col);
 
- int hair_type = mii_hairType(m);
- int hair_y = cy - 2 - ry - 4;
+ hair_type = mii_hairType(m);
+ hair_y = cy - 2 - ry - 4;
 
  for(y = hair_y; y < cy - 2 - ry; y++)
   for(x = cx - rx - 2; x <= cx + rx + 2; x++)
   {
-   int in_hair = 0;
+   in_hair = 0;
    if(x >= cx - rx && x <= cx + rx) in_hair = 1;
    else if(x >= cx - rx - 2 && x <= cx - rx && y < cy - 2 - ry + 4) in_hair = 1;
    else if(x >= cx + rx && x <= cx + rx + 2 && y < cy - 2 - ry + 4) in_hair = 1;
 
    if(in_hair)
    {
-    int skip = 0;
+    skip = 0;
     if(hair_type > 15 && y >= hair_y + 2) skip = 1;
     if(hair_type > 12 && hair_type <= 15 && y >= hair_y + 3) skip = 1;
     if(hair_type > 10 && hair_type <= 12 && y == hair_y) skip = 1;
@@ -362,16 +374,16 @@ static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData
    }
   }
 
- int brow_type = mii_eyebrowType(m);
- int brow_y = eye_y - 3 - (mii_eyebrowVertPos(m) - 10) / 3;
- int brow_w = 4 + (brow_type % 3);
+ brow_type = mii_eyebrowType(m);
+ brow_y = eye_y - 3 - (mii_eyebrowVertPos(m) - 10) / 3;
+ brow_w = 4 + (brow_type % 3);
 
  for(x = left_eye_x - 1; x > left_eye_x - 1 - brow_w && x >= 0; x--)
   draw_pixel(bm, width, x, brow_y, 1);
  for(x = right_eye_x + eye_w + 1; x < right_eye_x + eye_w + 1 + brow_w && x < width; x++)
   draw_pixel(bm, width, x, brow_y, 1);
 
- int glasses = mii_glassesType(m);
+ glasses = mii_glassesType(m);
  if(glasses > 0)
  {
   for(y = eye_y - 1; y < eye_y + eye_h + 1; y++)
@@ -396,8 +408,8 @@ static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData
 
  if(mii_mole(m))
  {
-  int mx = cx + 4;
-  int my = cy + 12;
+  mx = cx + 4;
+  my = cy + 12;
   draw_pixel(bm, width, mx, my, 11);
  }
 }
@@ -581,35 +593,42 @@ ULONG __saveds __stdargs DTS_ReadIntoBitMap(struct ClassBase *cb, Object * o, Cl
            WritePixelLine8(&rp, 0, i, width, buffer + (i * width), &trp);
           }
 
-         for(i = 0; i < 12; i++)
-          {
-           UWORD col;
-           switch(i)
+         {
+          UWORD pal[12];
+          int si, ei, hi, li;
+
+          si = mii_skinColor(&mii_data);
+          ei = mii_eyeColor(&mii_data);
+          hi = mii_hairColor(&mii_data);
+          li = mii_lipColor(&mii_data);
+
+          pal[0]  = 0x0000;
+          pal[1]  = 0x0220;
+          pal[2]  = skin_colors[si % 6];
+          pal[3]  = eye_colors[ei % 6];
+          pal[4]  = hair_colors[hi % 8];
+          pal[5]  = lip_colors[li % 3];
+          pal[6]  = mii_colors[1];
+          pal[7]  = mii_colors[6];
+          pal[8]  = mii_colors[8];
+          pal[9]  = mii_colors[9];
+          pal[10] = mii_colors[10];
+          pal[11] = 0x0000;
+
+          for(i = 0; i < 12; i++)
            {
-            case 0:  col = 0x0000; break;
-            case 1:  col = 0x0220; break;
-            case 2:  { int s = mii_skinColor(&mii_data); col = skin_colors[s % 6]; break; }
-            case 3:  { int e = mii_eyeColor(&mii_data); col = eye_colors[e % 6]; break; }
-            case 4:  { int h = mii_hairColor(&mii_data); col = hair_colors[h % 8]; break; }
-            case 5:  { int l = mii_lipColor(&mii_data); col = lip_colors[l % 3]; break; }
-            case 6:  col = mii_colors[1]; break;
-            case 7:  col = mii_colors[6]; break;
-            case 8:  col = mii_colors[8]; break;
-            case 9:  col = mii_colors[9]; break;
-            case 10: col = mii_colors[10]; break;
-            case 11: col = 0x0000; break;
-            default: col = mii_colors[i]; break;
+            UWORD col;
+
+            col = pal[i];
+            cmap->red   = ((col >> 8) & 0x0F) * 17;
+            cmap->green = ((col >> 4) & 0x0F) * 17;
+            cmap->blue  = (col & 0x0F) * 17;
+            cmap++;
+
+            cregs[i * 3    ] = (LONG)((col >> 8) & 0x0F) * 17 << 24;
+            cregs[i * 3 + 1] = (LONG)((col >> 4) & 0x0F) * 17 << 24;
+            cregs[i * 3 + 2] = (LONG)(col & 0x0F) * 17 << 24;
            }
-
-           cmap->red   = ((col >> 8) & 0x0F) * 17;
-           cmap->green = ((col >> 4) & 0x0F) * 17;
-           cmap->blue  = (col & 0x0F) * 17;
-           cmap++;
-
-           cregs[i * 3    ] = (LONG)((col >> 8) & 0x0F) * 17 << 24;
-           cregs[i * 3 + 1] = (LONG)((col >> 4) & 0x0F) * 17 << 24;
-           cregs[i * 3 + 2] = (LONG)(col & 0x0F) * 17 << 24;
-          }
 
          setdtattrs (cb, o,
                      DTA_ObjName,       readname,
