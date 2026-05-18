@@ -385,26 +385,26 @@ static void mii_render_face(UBYTE *bm, UWORD width, UWORD height, struct MiiData
 
  glasses = mii_glassesType(m);
  if(glasses > 0)
- {
-  for(y = eye_y - 1; y < eye_y + eye_h + 1; y++)
   {
-   draw_pixel(bm, width, left_eye_x - 2, y, glasses);
-   draw_pixel(bm, width, left_eye_x + eye_w + 1, y, glasses);
-   draw_pixel(bm, width, right_eye_x - 2, y, glasses);
-   draw_pixel(bm, width, right_eye_x + eye_w + 1, y, glasses);
+   for(y = eye_y - 1; y < eye_y + eye_h + 1; y++)
+   {
+    draw_pixel(bm, width, left_eye_x - 2, y, outline_col);
+    draw_pixel(bm, width, left_eye_x + eye_w + 1, y, outline_col);
+    draw_pixel(bm, width, right_eye_x - 2, y, outline_col);
+    draw_pixel(bm, width, right_eye_x + eye_w + 1, y, outline_col);
+   }
+   for(x = left_eye_x - 2; x <= left_eye_x + eye_w + 1; x++)
+   {
+    draw_pixel(bm, width, x, eye_y - 2, outline_col);
+    draw_pixel(bm, width, x, eye_y + eye_h, outline_col);
+   }
+   for(x = right_eye_x - 2; x <= right_eye_x + eye_w + 1; x++)
+   {
+    draw_pixel(bm, width, x, eye_y - 2, outline_col);
+    draw_pixel(bm, width, x, eye_y + eye_h, outline_col);
+   }
+   draw_pixel(bm, width, cx, eye_y - 3, outline_col);
   }
-  for(x = left_eye_x - 2; x <= left_eye_x + eye_w + 1; x++)
-  {
-   draw_pixel(bm, width, x, eye_y - 2, glasses);
-   draw_pixel(bm, width, x, eye_y + eye_h, glasses);
-  }
-  for(x = right_eye_x - 2; x <= right_eye_x + eye_w + 1; x++)
-  {
-   draw_pixel(bm, width, x, eye_y - 2, glasses);
-   draw_pixel(bm, width, x, eye_y + eye_h, glasses);
-  }
-  draw_pixel(bm, width, cx, eye_y - 3, glasses);
- }
 
  if(mii_mole(m))
  {
